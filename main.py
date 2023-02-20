@@ -174,7 +174,7 @@ if __name__ == '__main__':
     #for doc in articles:
     #    print(f'{doc.id} => {doc.to_dict()}')
     # insert_into_template(articles)
-   # send_email(recipients, 'Daily newsletter', insert_into_template(articles))
+    #send_email(recipients, 'Daily newsletter', insert_into_template(articles))
     #template = open('TheGrayArea Newsletter.html')
     #soup = BeautifulSoup(template.read(), "html.parser")
 
