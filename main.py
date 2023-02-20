@@ -167,9 +167,10 @@ def get_article():
 
 if __name__ == '__main__':
     # initialize_gmail_api()
-    port = int(os.environ.get('PORT', 5000))
-    api.run(host='0.0.0.0', port=port)
-    #recipients = ['vkramarenko2711@gmail.com']
+    #port = int(os.environ.get('PORT', 5000))
+    #api.run(host='0.0.0.0', port=port)
+    recipients = [doc.id for doc in db.collection('subscribers').list_documents()]
+    print(recipients)
     #articles = db.collection('articles').stream()
     #for doc in articles:
     #    print(f'{doc.id} => {doc.to_dict()}')
