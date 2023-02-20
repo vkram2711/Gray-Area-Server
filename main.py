@@ -167,7 +167,7 @@ def get_article():
 
 if __name__ == '__main__':
     # initialize_gmail_api()
-    api.run(host='0.0.0.0')
+    api.run(host='0.0.0.0', port=5000)
     #recipients = ['vkramarenko2711@gmail.com']
     #articles = db.collection('articles').stream()
     #for doc in articles:
