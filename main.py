@@ -90,7 +90,7 @@ def generate_image_url(id):
 
 
 def insert_into_template(articles):
-    template = open('TheGrayArea Newsletter (2).html')
+    template = open('TheGrayArea Newsletter.html')
     soup = BeautifulSoup(template.read(), "html.parser")
 
     article_template = soup.find('div', attrs={'class': 'tga-column'})
@@ -167,14 +167,15 @@ def get_article():
 
 if __name__ == '__main__':
     # initialize_gmail_api()
-    api.run(host='0.0.0.0', port=5000)
+    port = int(os.environ.get('PORT', 5000))
+    api.run(host='0.0.0.0', port=port)
     #recipients = ['vkramarenko2711@gmail.com']
     #articles = db.collection('articles').stream()
     #for doc in articles:
     #    print(f'{doc.id} => {doc.to_dict()}')
     # insert_into_template(articles)
-    #send_email(recipients, 'Daily newsletter', insert_into_template(articles))
-    #template = open('TheGrayArea Newsletter (2).html')
+   # send_email(recipients, 'Daily newsletter', insert_into_template(articles))
+    #template = open('TheGrayArea Newsletter.html')
     #soup = BeautifulSoup(template.read(), "html.parser")
 
     #send_email(recipients, 'Daily newsletter', soup)
