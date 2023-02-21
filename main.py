@@ -4,7 +4,7 @@ import firebase_admin
 from firebase_admin import credentials, storage
 from firebase_admin import firestore
 from google_auth_oauthlib.flow import InstalledAppFlow
-from newsapi import NewsApiClient
+from newsapi.newsapi_client import NewsApiClient
 from bs4 import BeautifulSoup
 import base64
 from email.mime.text import MIMEText
@@ -53,11 +53,13 @@ def save_articles_to_firebase(articles):
 
         doc_ref.set({
             'title': article['title'],
+            'category': article['category'],
             'description': article['description'],
             'date': cloudFirestore.SERVER_TIMESTAMP,
-            'neutral': article['content'],
-            'pro': article['description'],
-            'against': article['description'],
+            'pro_title': article['title_a'],
+            'pro': article['narration_a'],
+            'against_title': article['title_b'],
+            'against': article['narration_b'],
         })
 
         print(f'Document ID: {doc_ref.id}')
