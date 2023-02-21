@@ -30,12 +30,12 @@ db = firestore.client()
 bucket = storage.bucket()
 
 
-def get_news():
-    newsapi = NewsApiClient(api_key='7d414cef315845189aebd171e10c1cb2')
-    top_headlines = newsapi.get_top_headlines(language='en', country='us')
-    print(top_headlines)
+def save_articles_to_firebase(articles):
+    # newsapi = NewsApiClient(api_key='7d414cef315845189aebd171e10c1cb2')
+    # top_headlines = newsapi.get_top_headlines(language='en', country='us')
+    # print(top_headlines)
 
-    for i, article in enumerate(top_headlines['articles']):
+    for i, article in enumerate(articles):
         doc_ref = db.collection('articles').document()
 
         # Download the image from a URL
@@ -61,7 +61,6 @@ def get_news():
         })
 
         print(f'Document ID: {doc_ref.id}')
-    return top_headlines['articles']
 
 
 def initialize_gmail_api():
@@ -166,20 +165,19 @@ def get_article():
 
 
 if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5000))
+    api.run(host='0.0.0.0', port=port)
+
     # initialize_gmail_api()
-    #port = int(os.environ.get('PORT', 5000))
-    #api.run(host='0.0.0.0', port=port)
     recipients = [doc.id for doc in db.collection('subscribers').list_documents()]
     print(recipients)
-    #articles = db.collection('articles').stream()
-    #for doc in articles:
-    #    print(f'{doc.id} => {doc.to_dict()}')
-    # insert_into_template(articles)
-    #send_email(recipients, 'Daily newsletter', insert_into_template(articles))
-    #template = open('TheGrayArea Newsletter.html')
-    #soup = BeautifulSoup(template.read(), "html.parser")
 
-    #send_email(recipients, 'Daily newsletter', soup)
+    # Testing things
+    # send_email(recipients, 'Daily newsletter', insert_into_template(articles))
+    # template = open('TheGrayArea-Newsletter-Table.html')
+    # soup = BeautifulSoup(template.read(), "html.parser")
+
+    # send_email(recipients, 'Daily newsletter', soup)
 
     # sched = BackgroundScheduler()
     # sched.start()
