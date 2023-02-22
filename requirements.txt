@@ -36,6 +36,7 @@ MarkupSafe==2.1.2
 msgpack==1.0.4
 newsapi-python==0.2.6
 oauthlib==3.2.2
+openai==0.26.5
 premailer==3.10.0
 proto-plus==1.22.2
 protobuf==4.22.0
