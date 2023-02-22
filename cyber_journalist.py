@@ -1,5 +1,6 @@
 import openai
 import urllib.request
+from main import save_articles_to_firebase
 
 # setup openai api key
 openai.api_key = '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'
@@ -160,5 +161,4 @@ article = {
     'narration_b': narration_b,
 }
 
-from main import save_articles_to_firebase
 save_articles_to_firebase([article])

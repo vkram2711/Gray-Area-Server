@@ -91,12 +91,16 @@ def generate_image_url(id):
 
 
 def insert_into_template(articles):
-    template = open('TheGrayArea Newsletter.html')
+    template = open('TheGrayArea-Newsletter-Table.html')
     soup = BeautifulSoup(template.read(), "html.parser")
 
-    article_template = soup.find('div', attrs={'class': 'tga-column'})
-    html_start = str(soup)[:str(soup).find(str(article_template))]
-    html_end = str(soup)[str(soup).find(str(article_template)) + len(str(article_template)):]
+    title_and_category = soup.find('tr', attrs={'class': 'titleAndCategory'})
+    picture_row = soup.find('tr', attrs={'class': 'pictureRow'})
+    description_row = soup.find('tr', attrs={'class': 'descriptionRow'})
+    pro_and_against = soup.find('tr', attrs={'class': 'proAndAgainst'})
+
+    html_start = str(soup)[:str(soup).find(str(title_and_category))]
+    html_end = str(soup)[str(soup).find(str(title_and_category)) + len(str(title_and_category)) + len(str(picture_row)) + len(str(description_row)) + len(str(pro_and_against)):]
     html_start = html_start.replace('\n', '')
     html_end = html_end.replace('\n', '')
     newsletter_content = ""
@@ -105,25 +109,38 @@ def insert_into_template(articles):
         article_id = article.id
         article = article.to_dict()
         try:
-            img = article_template.img
+            img = picture_row.img
 
             img['src'] = generate_image_url(article_id)
-            article_template.img.replace_with(img)
+            picture_row.img.replace_with(img)
         except:
             pass
 
-        title = article_template.find('div', attrs={'class': 'tga_cvk-articletitle'})
-        title.string = article['title'][:300]
+        title = title_and_category.h3
+        category = title_and_category.find('p', attrs={'class': 'category'})
 
-        neutral = article_template.find('div', attrs={'class': 'tga_cvk-body'})
-        neutral.string = article['description'][:300] + "..."
+        title.string = article['title'][:300]
+        category.string = article['category']
+
+        description = description_row.p
+        description.string = article['description'][:300] + "..."
+
+        pro_title = pro_and_against.find('p', attrs={'class': 'proTitle'})
+        against_title = pro_and_against.find('p', attrs={'class': 'againstTitle'})
+        pro = pro_and_against.find('p', attrs={'class': 'pro'})
+        against = pro_and_against.find('p', attrs={'class': 'against'})
+
+        pro_title.string = article["pro_title"]
+        against_title.string = article["against_title"]
+        pro.string = article["pro"]
+        against.string = article["against"]
 
         #link = article_template.a
         # link['href'] = article['url']
         #link.string = article.id
         #article_template.a.replace_with(link)
 
-        newsletter_content += str(article_template).replace('\n', '')
+        newsletter_content += str(title_and_category).replace('\n', '') + str(picture_row).replace('\n', '') + str(description_row).replace('\n', '') + str(pro_and_against).replace('\n', '')
 
     email_content = html_start + newsletter_content + html_end
     print(email_content)
@@ -167,15 +184,15 @@ def get_article():
 
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
-    api.run(host='0.0.0.0', port=port)
+    #port = int(os.environ.get('PORT', 5000))
+    #api.run(host='0.0.0.0', port=port)
 
     # initialize_gmail_api()
     recipients = [doc.id for doc in db.collection('subscribers').list_documents()]
     print(recipients)
 
     # Testing things
-    # send_email(recipients, 'Daily newsletter', insert_into_template(articles))
+    send_email(recipients, 'Daily newsletter', insert_into_template(db.collection('articles').stream()))
     # template = open('TheGrayArea-Newsletter-Table.html')
     # soup = BeautifulSoup(template.read(), "html.parser")
 
