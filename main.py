@@ -16,6 +16,7 @@ from google.cloud import firestore as cloudFirestore
 import urllib.request
 from datetime import datetime, timedelta
 from flask import Flask, json, request
+from dotenv import load_dotenv
 
 SCOPES = ['https://www.googleapis.com/auth/gmail.compose']
 
@@ -28,6 +29,9 @@ firebase_admin.initialize_app(cred, {
 # Get a reference to the Firestore service and Storage
 db = firestore.client()
 bucket = storage.bucket()
+
+# Load variables from environment file
+load_dotenv()
 
 
 def save_articles_to_firebase(articles):
@@ -123,7 +127,7 @@ def insert_into_template(articles):
         category.string = article['category']
 
         description = description_row.p
-        description.string = article['description'][:300] + "..."
+        description.string = article['description']
 
         pro_title = pro_and_against.find('p', attrs={'class': 'proTitle'})
         against_title = pro_and_against.find('p', attrs={'class': 'againstTitle'})
@@ -178,28 +182,46 @@ def send_email(recipients, subject, content):
 api = Flask(__name__)
 
 
+def get_subscribers():
+    return [doc.id for doc in db.collection('subscribers').list_documents()]
+
+
+def get_newsletter():
+    return db.collection('articles').stream()
+
+
 @api.route('/get_article', methods=['GET'])
 def get_article():
     return json.dumps(db.collection('articles').document(request.args.get('article_id')).get().to_dict())
 
 
+@api.route('/subscribe', methods=['POST'])
+def subscribe():
+    email = [request.args.get('email')]
+    db.collection('users').document().set(email)
+    send_email(email, 'Daily newsletter', insert_into_template(get_newsletter()))
+    return json.dumps({"status": "ok"})
+
+
+@api.route('/unsubscribe', methods=['POST'])
+def unsubscribe():
+    db.collection('users').document(request.args.get('email')).delete()
+    return json.dumps({"status": "ok"})
+
+
 if __name__ == '__main__':
-    #port = int(os.environ.get('PORT', 5000))
-    #api.run(host='0.0.0.0', port=port)
+    port = int(os.environ.get('PORT', 5000))
+    api.run(host='0.0.0.0', port=port)
 
     # initialize_gmail_api()
-    recipients = [doc.id for doc in db.collection('subscribers').list_documents()]
+    recipients = get_subscribers()
     print(recipients)
 
     # Testing things
-    send_email(recipients, 'Daily newsletter', insert_into_template(db.collection('articles').stream()))
-    # template = open('TheGrayArea-Newsletter-Table.html')
-    # soup = BeautifulSoup(template.read(), "html.parser")
+    send_email(recipients, 'Daily newsletter', insert_into_template(get_newsletter()))
 
-    # send_email(recipients, 'Daily newsletter', soup)
-
-    # sched = BackgroundScheduler()
-    # sched.start()
-    # sched.add_job(hello_world, 'interval', seconds=15, args=['hello'])
-    # input("Press enter to exit.")
-    # sched.shutdown()
+    sched = BackgroundScheduler()
+    sched.start()
+    sched.add_job(send_email, 'interval', seconds=15, args=[recipients, 'Daily newsletter', insert_into_template(get_newsletter())])
+    #input("Press enter to exit.")
+    sched.shutdown()
