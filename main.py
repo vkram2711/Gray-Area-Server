@@ -9,7 +9,7 @@ from mail_utils import initialize_gmail_api, insert_into_template, send_email
 # Load variables from environment file
 load_dotenv()
 
-initialize_gmail_api()
+# initialize_gmail_api()
 
 api = Flask(__name__)
 
