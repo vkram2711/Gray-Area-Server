@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 
 import firebase_utils
 import news_generator
+import news_utils
 from firebase_utils import get_newsletter, get_subscribers, db
 from mail_utils import initialize_gmail_api, insert_into_template, send_email
 from cyber_journalist import generate_article
@@ -51,6 +52,14 @@ def generate_news():
     return json.dumps(article)
 
 
+@api.route('/generate_newsletter', methods=['GET'])
+def generate_newsletter():
+    titles = news_utils.get_top_titles()
+    source = news_generator.generate_news(titles[0])
+    article = generate_article(source, True)
+    return json.dumps(article)
+
+
 @api.route('/get_newsletter', methods=['GET'])
 def get_newsletter():
     return json.dumps(firebase_utils.get_newsletter())
@@ -60,7 +69,7 @@ if __name__ == '__main__':
     # sched = BackgroundScheduler()
     # sched.start()
     # sched.add_job(send_email, 'interval', seconds=15, args=[get_subscribers(), 'Daily newsletter', insert_into_template(get_newsletter())])
+    print(news_utils.get_articles_description('"Andrew Tate"'))
     port = int(os.environ.get('PORT', 5000))
     api.run(host='0.0.0.0', port=port)
-
     # sched.shutdown()

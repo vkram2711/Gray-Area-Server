@@ -18,29 +18,32 @@ audience_selection = [
     ' it appeals to general adults.',
     ' it appeals to politician readers.'
 ]
+
 audience_level = audience_selection[5]
+narration_types = {
+    'pro': 'benefits and positive sides',
+    'neu': 'neutral statement',
+    'neg': 'drawbacks and negative sides'
+}
 
 
 def rewrite_with_wordcount(source):
-    response = openai.Completion.create(
+    return openai.Completion.create(
         model="text-davinci-003",
         prompt=source + f'\n\n Rewrite the above content\'s argument in {narration_len} words.',
         temperature=0.1,
         max_tokens=narration_len * 4,
         best_of=3
     )
-    return response
 
 
 def rewrite_for_audience(narration):
-    response = openai.Completion.create(
+    return openai.Completion.create(
         model="text-davinci-003",
         prompt=narration + f'\n\n Rewrite the above content so that' + audience_level,
         temperature=0.1,
         max_tokens=narration_len * 4,
     )
-
-    return response
 
 
 def summarize_perspective(source):
@@ -117,9 +120,18 @@ def generate_image(title, category, summary, title_a, narration_a, title_b, narr
         size="1024x1024"
     )
     image_url = response_img['data'][0]['url']
-    urllib.request.urlretrieve(image_url, "article_hand_gen/thumbnail.jpg")
 
     return image_url
+
+
+def generate_source(neutral, narration_type):
+    return openai.Completion.create(
+        model="text-davinci-003",
+        prompt=neutral + f'\n\n Use the above context to generate a news article about {narration_type} of the topic.',
+        temperature=0.1,
+        max_tokens=narration_len * 4,
+        best_of=5
+    ).choices[0].text
 
 
 def generate_narration(source):
@@ -138,23 +150,34 @@ Call this function, GPT3 will generate article and send it to firebase
 source: a dictionary, read line 23-27
 send_to_db: if False, do not send the article do firebase. in case we fill the db up with too many trash drafts during testing. No matter it is set to True or False, the generated article can be viewed in the "response.txt" file. The generated image can be viewed in "thumbnail.jpg".
 '''
+
+
+def get_sources(source):
+    # read sources from text file if input source is none
+
+    source_a = source['pro']
+    source_b = source['neg']
+    source_neutral = source['neu']
+
+    if (source_a == '' and source_b == '' and source_neutral == '') or source_neutral == '' and (
+            source_a == '' or source_b == ''):
+        return {'status': 'empty narrations'}
+    if source_a == '':
+        source_a = generate_source(source_neutral, narration_types['pro'])
+
+    if source_b == '':
+        source_b = generate_source(source_neutral, narration_types['neg'])
+
+    if source_neutral == '':
+        source_neutral = generate_source(source_a + '\n On the other hand, ' + source_b, narration_types['neu'])
+
+    return source_a, source_b, source_neutral
+
+
 def generate_article(source, send_to_db=False):
     start = timer()
 
-    # read sources from text file if input source is none
-    if source is None:
-        with open('article_hand_gen/source_a.txt', 'r', encoding='utf-8') as file:
-            source_a = file.read()
-        with open('article_hand_gen/source_b.txt', 'r', encoding='utf-8') as file:
-            source_b = file.read()
-        with open('article_hand_gen/neutral.txt', 'r', encoding='utf-8') as file:
-            source_neutral = file.read()
-
-    # else read the input
-    else:
-        source_a = source['pro']
-        source_b = source['neg']
-        source_neutral = source['neu']
+    source_a, source_b, source_neutral = get_sources(source)
 
     # generate narrations
     narration_a, title_a = generate_narration(source_a)
@@ -166,13 +189,13 @@ def generate_article(source, send_to_db=False):
     response_summary = rewrite_for_audience(summary)
     summary = response_summary.choices[0].text
 
-    # generate category
-    response_category = generate_category(summary)
-    category = response_category.choices[0].text.replace('.', '').replace('\n', '')
-
     # generate title
     response_title = generate_article_title(summary)
     title = response_title.choices[0].text.replace('"', '')
+
+    # generate category
+    response_category = generate_category(summary)
+    category = response_category.choices[0].text.replace('.', '').replace('\n', '')
 
     image_url = generate_image(title, category, summary, title_a, narration_a, title_b, narration_b)
 

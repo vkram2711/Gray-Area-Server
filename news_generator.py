@@ -13,14 +13,18 @@ def keywords_from_query(user_query):
 
     # Generate search input for news
     response = openai.Completion.create(model="text-davinci-003",
-                                        prompt="Produce 3 keywords and put AND in between them for web search for this query:  " + user_query + ". Please print them as one line. Only put quotation marks to the keywords, and do not finish with 'AND'. Do not forget to close the quotations you have opened for keywords at the end.",
+                                        prompt="Produce 3 keywords separated by semicolon for web search for this query: " + user_query + ". Print them as one line. Only put quotation marks to the keywords. Do not forget to close the quotations you have opened for keywords at the end.",
                                         temperature=1, max_tokens=256)
     keywords = response.choices[0].text
 
+    response = openai.Completion.create(model="text-davinci-003",
+                                        prompt="Here is the list of keyword separated by semicolons: " + keywords + ". Generated from next query: " + user_query + ". Print as one-line search query using logical operators AND, OR, NOT. Put keywords in quotation marks.",
+                                        temperature=1, max_tokens=256)
+    query = response.choices[0].text
     end = timer()
     print(f"Keyword generation took {end - start}")
-    print(keywords)
-    return keywords
+    print(query)
+    return query
 
 
 def sentiment_analysis(content_dict):
@@ -34,7 +38,7 @@ def sentiment_analysis(content_dict):
         data.append(key)
     sentiment_dict = sentiment_pipeline(data)
     df = pd.DataFrame(sentiment_dict)
-
+    print(df)
     end = timer()
     print(f"Sentiment analysis took: {end - start}")
     return df, data
@@ -73,6 +77,7 @@ def content_grabber(index_list, data):
 
 def generate_news(query):
     content_dict = get_articles_description(keywords_from_query(query))
+    print(content_dict)
     df, data = sentiment_analysis(content_dict)
     pos_indexes, neu_indexes, neg_indexes = separate_sentiments(df)
 
@@ -80,8 +85,11 @@ def generate_news(query):
     neu_grabbed = content_grabber(neu_indexes, data)
     neg_grabbed = content_grabber(neg_indexes, data)
 
-    return {
+    sentiments = {
         "pro": pos_grabbed,
         "neu": neu_grabbed,
         "neg": neg_grabbed
     }
+
+    print(sentiments)
+    return sentiments
