@@ -1,6 +1,7 @@
 import openai
 import urllib.request
-from main import save_articles_to_firebase
+
+from firebase_utils import save_articles_to_firebase
 
 '''
 Call this function, GPT3 will generate article and send it to firebase
