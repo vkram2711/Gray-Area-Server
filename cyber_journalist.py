@@ -84,38 +84,73 @@ def generate_article_title(summary):
     )
 
 
-def generate_image(title, category, summary, title_a, narration_a, title_b, narration_b):
+def image_prompt_generator(summary):
+    response_instruction = openai.Completion.create(
+        prompt='In one line write a sentence an abstract description of the event without mentioning details: ' + summary,
+        model="text-davinci-003",
+        temperature=0.6,
+        max_tokens=256,
+        best_of=5
+    )
+    theme = response_instruction.choices[0].text
+    print(theme)
+
+    response_instruction = openai.Completion.create(
+        prompt='Generate 5 association words with next phrase: ' + theme,
+        model="text-davinci-003",
+        temperature=0.6,
+        max_tokens=256,
+        best_of=5
+    )
+    associations = response_instruction.choices[0].text
+
+    print(associations)
+
     # generate image
     response_instruction = openai.Completion.create(
-        prompt='A painting with a title of "' + title + '" should look like: ',
+        prompt=associations + ' from the list above select the most relevant word to categorize this event: ' + summary,
+        model="text-davinci-003",
+        temperature=0.6,
+        max_tokens=256,
+        best_of=5
+    )
+    general = response_instruction.choices[0].text
+    print(general)
+    response_instruction = openai.Completion.create(
+        prompt=associations + ' using only words from the list above select words related to: ' + general,
+        model="text-davinci-003",
+        temperature=0.6,
+        max_tokens=256,
+        best_of=5
+    )
+
+    instruction = response_instruction.choices[0].text
+    print(instruction)
+    response_instruction = openai.Completion.create(
+        prompt='Generate a one sentence description of an illustration with a theme: ' + instruction,
         model="text-davinci-003",
         temperature=0.6,
         max_tokens=256,
         best_of=5
     )
     instruction = response_instruction.choices[0].text
+    print(instruction)
 
     response_instruction = openai.Completion.create(
-        prompt='Replace all human names with pronouns: ' + instruction,
+        prompt='Capture objects from this sentence, list them connecting with + sign' + instruction,
         model="text-davinci-003",
-        temperature=0.1,
+        temperature=0.6,
         max_tokens=256,
+        best_of=5
     )
     instruction = response_instruction.choices[0].text
+    print(instruction)
+    return instruction
 
-    # write response
-    with open("article_hand_gen/response.txt", "w") as text_file:
-        text_file.write(title + '\n\n' +
-                        category + '\n\n' +
-                        instruction + '\n\n' +
-                        summary + '\n\n' +
-                        title_a + '\n\n' +
-                        narration_a + '\n\n' +
-                        title_b + '\n\n' +
-                        narration_b)
 
+def generate_image(instruction):
     response_img = openai.Image.create(
-        prompt='In a comic-styled drawing, ' + instruction,
+        prompt='Create a symbolic vector artwork that looks like: ' + instruction,
         n=1,
         size="1024x1024"
     )
@@ -197,7 +232,8 @@ def generate_article(source, send_to_db=False):
     response_category = generate_category(summary)
     category = response_category.choices[0].text.replace('.', '').replace('\n', '')
 
-    image_url = generate_image(title, category, summary, title_a, narration_a, title_b, narration_b)
+    instruction = image_prompt_generator(title, summary)
+    image_url = generate_image(instruction)
 
     article = {
         'title': title,

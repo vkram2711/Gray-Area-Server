@@ -13,7 +13,7 @@ def keywords_from_query(user_query):
 
     # Generate search input for news
     response = openai.Completion.create(model="text-davinci-003",
-                                        prompt="Produce 3 keywords separated by semicolon for web search for this query: " + user_query + ". Print them as one line. Only put quotation marks to the keywords. Do not forget to close the quotations you have opened for keywords at the end.",
+                                        prompt="Produce 5 keywords separated by semicolon for web search for this query: " + user_query + ". Print them as one line. Only put quotation marks to the keywords. Do not forget to close the quotations you have opened for keywords at the end.",
                                         temperature=1, max_tokens=256)
     keywords = response.choices[0].text
 

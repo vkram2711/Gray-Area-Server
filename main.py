@@ -3,6 +3,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask, json, request
 from dotenv import load_dotenv
 
+import cyber_journalist
 import firebase_utils
 import news_generator
 import news_utils
@@ -69,7 +70,8 @@ if __name__ == '__main__':
     # sched = BackgroundScheduler()
     # sched.start()
     # sched.add_job(send_email, 'interval', seconds=15, args=[get_subscribers(), 'Daily newsletter', insert_into_template(get_newsletter())])
-    print(news_utils.get_articles_description('"Andrew Tate"'))
+    instruction = cyber_journalist.image_prompt_generator(' As winter weather warnings, blizzards, and ice take effect across the United States, 65 million people are now under winter weather alerts from California to New York. This storm has the potential to cause hazardous travel conditions and bring snow and freezing rain. Politicians should take this storm seriously and ensure that their constituents are prepared for the potential impacts. It is essential that all necessary precautions are taken to ensure the safety of the public')
+    print(cyber_journalist.generate_image(instruction))
     port = int(os.environ.get('PORT', 5000))
     api.run(host='0.0.0.0', port=port)
     # sched.shutdown()
