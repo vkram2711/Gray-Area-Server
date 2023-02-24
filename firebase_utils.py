@@ -1,7 +1,9 @@
+
 import firebase_admin
 from firebase_admin import credentials, storage
 from firebase_admin import firestore
 from datetime import datetime, timedelta
+import datetime as dt
 from google.cloud import firestore as cloudFirestore
 import urllib.request
 import os
@@ -23,7 +25,15 @@ def get_subscribers():
 
 
 def get_newsletter():
-    return db.collection('articles').stream()
+    today = dt.date.today()
+    # convert to datetime object with midnight as time
+    today_start = dt.datetime.combine(today, dt.time.min)
+
+    # convert to datetime object with 11:59:59 PM as time
+    today_end = dt.datetime.combine(today, dt.time.max)
+    # query Firestore for documents with timestamp between today_start and today_end
+    return db.collection('articles').where('date', '>=', today_start).where('date', '<=', today_end).stream()
+
 
 
 def generate_image_url(id):

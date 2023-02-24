@@ -3,9 +3,11 @@ import os
 from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask, json, request
 from dotenv import load_dotenv
+import news_generator
 from firebase_utils import get_newsletter, get_subscribers, db
 from mail_utils import initialize_gmail_api, insert_into_template, send_email
-
+from cyber_journalist import generate_article
+import news_utils
 # Load variables from environment file
 load_dotenv()
 
@@ -33,13 +35,21 @@ def unsubscribe():
     return json.dumps({"status": "ok"})
 
 
-if __name__ == '__main__':
-    sched = BackgroundScheduler()
-    sched.start()
-    sched.add_job(send_email, 'interval', seconds=15, args=[get_subscribers(), 'Daily newsletter', insert_into_template(get_newsletter())])
+@api.route('/generate_news', methods=['GET'])
+def generate_news():
+    query = request.args.get('query')
+    source = news_generator.generate_news(query)
+    article = generate_article(source)
 
+    return json.dumps(article)
+
+
+if __name__ == '__main__':
+    # sched = BackgroundScheduler()
+    # sched.start()
+    # sched.add_job(send_email, 'interval', seconds=15, args=[get_subscribers(), 'Daily newsletter', insert_into_template(get_newsletter())])
+    news_utils.get_articles_description('"cats" AND "pets" AND "kittens" AND "felines" AND "pets adoption" AND  "cat breeds" AND "cat toys" AND "cat food" AND "cat furniture" AND "cat health"')
     port = int(os.environ.get('PORT', 5000))
     api.run(host='0.0.0.0', port=port)
 
-    # input("Press enter to exit.")
-    sched.shutdown()
+    # sched.shutdown()

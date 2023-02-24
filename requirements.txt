@@ -5,3 +5,8 @@ google==3.0.0
 openai==0.26.5
 
 python-dotenv~=0.21.1
+pandas~=1.5.3
+transformers~=4.26.1
+tensorflow==2.11.0
+tf-nightly==2.13.0.dev20230223
+newsapi-python==0.2.6
