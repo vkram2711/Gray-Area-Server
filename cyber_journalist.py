@@ -115,6 +115,15 @@ def image_prompt_generator(summary):
     )
     associations = response_instruction.choices[0].text
 
+    response_instruction = openai.Completion.create(
+        prompt='replace every name with one association: ' + associations,
+        model="text-davinci-003",
+        temperature=0.1,
+        max_tokens=256,
+        best_of=5
+    )
+    associations = response_instruction.choices[0].text
+
     print(associations)
 
     # generate image
@@ -150,7 +159,6 @@ def image_prompt_generator(summary):
     print(themed_story)
 
     return themed_story
-
 
 
 def generate_image(instruction):
