@@ -2,6 +2,7 @@ import openai
 import urllib.request
 
 from firebase_utils import save_articles_to_firebase
+from timeit import default_timer as timer
 
 '''
 Call this function, GPT3 will generate article and send it to firebase
@@ -11,16 +12,18 @@ send_to_db: if False, do not send the article do firebase. in case we fill the d
 
 
 def generate_article(source, send_to_db=False):
+    start = timer()
+
     # setup openai api key
     openai.api_key = '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'
 
     # read sources from text file if input source is none
     if source is None:
-        with open('source_a.txt', 'r', encoding='utf-8') as file:
+        with open('article_hand_gen/source_a.txt', 'r', encoding='utf-8') as file:
             source_a = file.read()
-        with open('source_b.txt', 'r', encoding='utf-8') as file:
+        with open('article_hand_gen/source_b.txt', 'r', encoding='utf-8') as file:
             source_b = file.read()
-        with open('neutral.txt', 'r', encoding='utf-8') as file:
+        with open('article_hand_gen/neutral.txt', 'r', encoding='utf-8') as file:
             source_neutral = file.read()
 
     # else read the input
@@ -147,7 +150,7 @@ def generate_article(source, send_to_db=False):
     instruction = response_instruction.choices[0].text
 
     # write response
-    with open("response.txt", "w") as text_file:
+    with open("article_hand_gen/response.txt", "w") as text_file:
         text_file.write(title + '\n\n' +
                         category + '\n\n' +
                         instruction + '\n\n' +
@@ -163,7 +166,7 @@ def generate_article(source, send_to_db=False):
         size="1024x1024"
     )
     image_url = response_img['data'][0]['url']
-    urllib.request.urlretrieve(image_url, "thumbnail.jpg")
+    urllib.request.urlretrieve(image_url, "article_hand_gen/thumbnail.jpg")
 
     article = {
         'title': title,
@@ -179,4 +182,6 @@ def generate_article(source, send_to_db=False):
     if send_to_db:
         save_articles_to_firebase([article])
 
+    end = timer()
+    print(f"Generate Article took: {end - start}")
     return article

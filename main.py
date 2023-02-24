@@ -8,6 +8,8 @@ from firebase_utils import get_newsletter, get_subscribers, db
 from mail_utils import initialize_gmail_api, insert_into_template, send_email
 from cyber_journalist import generate_article
 import news_utils
+from timeit import default_timer as timer
+
 # Load variables from environment file
 load_dotenv()
 
@@ -37,10 +39,15 @@ def unsubscribe():
 
 @api.route('/generate_news', methods=['GET'])
 def generate_news():
+    start = timer()
+
     query = request.args.get('query')
     source = news_generator.generate_news(query)
-    article = generate_article(source)
+    article = generate_article(source, True)
 
+    end = timer()
+
+    print(f"News generation took:{end-start}")
     return json.dumps(article)
 
 

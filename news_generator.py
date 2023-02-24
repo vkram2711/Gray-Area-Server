@@ -2,23 +2,30 @@ import openai
 import pandas as pd
 from transformers import pipeline
 from news_utils import get_articles_description
+from timeit import default_timer as timer
+
 # API Key
 openai.api_key = "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"
 
 
 def keywords_from_query(user_query):
-    # Generate search input for news
+    start = timer()
 
+    # Generate search input for news
     response = openai.Completion.create(model="text-davinci-003",
                                         prompt="Produce 3 keywords and put AND in between them for web search for this query:  " + user_query + ". Please print them as one line. Only put quotation marks to the keywords, and do not finish with 'AND'. Do not forget to close the quotations you have opened for keywords at the end.",
                                         temperature=1, max_tokens=256)
     keywords = response.choices[0].text
 
+    end = timer()
+    print(f"Keyword generation took {end - start}")
     print(keywords)
     return keywords
 
 
 def sentiment_analysis(content_dict):
+    start = timer()
+
     # Pull up a sentiment analysis out of thin air
     sentiment_pipeline = pipeline(model="finiteautomata/bertweet-base-sentiment-analysis")
     # apply sentiment analysis to the descriptions
@@ -28,6 +35,8 @@ def sentiment_analysis(content_dict):
     sentiment_dict = sentiment_pipeline(data)
     df = pd.DataFrame(sentiment_dict)
 
+    end = timer()
+    print(f"Sentiment analysis took: {end - start}")
     return df, data
 
 
