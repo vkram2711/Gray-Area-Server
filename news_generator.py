@@ -1,11 +1,16 @@
+import os
+
 import openai
 import pandas as pd
 from transformers import pipeline
+
+import news_utils
+from cyber_journalist import generate_article
 from news_utils import get_articles_description
 from timeit import default_timer as timer
 
 # API Key
-openai.api_key = "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"
+openai.api_key = os.environ.get('OPENAI')
 
 
 def keywords_from_query(user_query):
@@ -13,13 +18,13 @@ def keywords_from_query(user_query):
 
     # Generate search input for news
     response = openai.Completion.create(model="text-davinci-003",
-                                        prompt="Produce 5 keywords separated by semicolon for web search for this query: " + user_query + ". Print them as one line. Only put quotation marks to the keywords. Do not forget to close the quotations you have opened for keywords at the end.",
+                                        prompt="Produce 3 keywords separated by semicolon for web search for this query without mentioning the source: " + user_query + ". Print them as one line. Only put quotation marks to the keywords. Do not forget to close the quotations you have opened for keywords at the end.",
                                         temperature=1, max_tokens=256)
     keywords = response.choices[0].text
 
     response = openai.Completion.create(model="text-davinci-003",
-                                        prompt="Here is the list of keyword separated by semicolons: " + keywords + ". Generated from next query: " + user_query + ". Print as one-line search query using logical operators AND, OR, NOT. Put keywords in quotation marks.",
-                                        temperature=1, max_tokens=256)
+                                        prompt="From the list of keywords separated by semicolons: " + keywords + ". Generated from the next query: " + user_query + ". Print as one-line search query replacing semicolons with logical operators AND, OR, NOT. Put keywords in quotation marks.",
+                                        temperature=0, max_tokens=256)
     query = response.choices[0].text
     end = timer()
     print(f"Keyword generation took {end - start}")
@@ -79,17 +84,44 @@ def generate_news(query):
     content_dict = get_articles_description(keywords_from_query(query))
     print(content_dict)
     df, data = sentiment_analysis(content_dict)
-    pos_indexes, neu_indexes, neg_indexes = separate_sentiments(df)
 
-    pos_grabbed = content_grabber(pos_indexes, data)
-    neu_grabbed = content_grabber(neu_indexes, data)
-    neg_grabbed = content_grabber(neg_indexes, data)
+    if not df.empty:
+        pos_indexes, neu_indexes, neg_indexes = separate_sentiments(df)
 
-    sentiments = {
-        "pro": pos_grabbed,
-        "neu": neu_grabbed,
-        "neg": neg_grabbed
-    }
+        pos_grabbed = content_grabber(pos_indexes, data)
+        neu_grabbed = content_grabber(neu_indexes, data)
+        neg_grabbed = content_grabber(neg_indexes, data)
 
-    print(sentiments)
-    return sentiments
+        sentiments = {
+            "pro": pos_grabbed,
+            "neu": neu_grabbed,
+            "neg": neg_grabbed
+        }
+
+        print(sentiments)
+        return sentiments
+    return None
+
+
+def news_generation(query):
+    start = timer()
+
+    source = generate_news(query)
+    if source is None:
+        print('Failed search for: ' + query)
+        return
+    article = generate_article(source, True)
+
+    end = timer()
+    print(f"News generation took:{end - start}")
+
+
+def top_newsletter():
+    start = timer()
+
+    top = news_utils.get_top_titles()
+
+    for q in top:
+        news_generation(q)
+    end = timer()
+    print(f"News letter generation took:{end - start}")

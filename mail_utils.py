@@ -8,6 +8,8 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from google.cloud import firestore as cloudFirestore
 
+from firebase_utils import generate_image_url
+
 SCOPES = ['https://www.googleapis.com/auth/gmail.compose']
 
 

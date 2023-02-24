@@ -1,7 +1,9 @@
+import os
+
 from newsapi import NewsApiClient
 
 # News API Key
-secret_newsapi = "237462c20ee14da78b008dd497b009be"
+secret_newsapi = os.environ.get('NEWSAPI')
 api = NewsApiClient(api_key=secret_newsapi)
 
 

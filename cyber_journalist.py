@@ -1,3 +1,5 @@
+import os
+
 import openai
 import urllib.request
 
@@ -5,7 +7,7 @@ from firebase_utils import save_articles_to_firebase
 from timeit import default_timer as timer
 
 # setup openai api key
-openai.api_key = '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'
+openai.api_key = os.environ.get('OPENAI')
 
 # hyper parameters
 narration_len = 150
@@ -97,17 +99,17 @@ def image_prompt_generator(summary):
     print(theme)
 
     response_instruction = openai.Completion.create(
-        prompt='Write what is the center of attention in this sentence: ' + summary,
+        prompt='Write what is the center of attention in this sentence without saying what it is: ' + summary,
         model="text-davinci-003",
         temperature=0.2,
         max_tokens=256,
         best_of=5
     )
-    theme = response_instruction.choices[0].text
-    print(theme)
+    main = response_instruction.choices[0].text
+    print(main)
 
     response_instruction = openai.Completion.create(
-        prompt='Generate 5 direct association words with the next phrase: ' + theme,
+        prompt='Generate 5 direct association words with the next phrase: ' + main + 'in context of: ' + theme,
         model="text-davinci-003",
         temperature=0.1,
         max_tokens=256,
@@ -149,7 +151,7 @@ def image_prompt_generator(summary):
     print(related_associations)
 
     response_instruction = openai.Completion.create(
-        prompt='Generate a one sentence description of an illustration that pictures an object with themes: ' + related_associations,
+        prompt='Generate a one simple sentence description of an illustration that pictures an object with themes: ' + related_associations,
         model="text-davinci-003",
         temperature=0.6,
         max_tokens=256,
@@ -157,8 +159,19 @@ def image_prompt_generator(summary):
     )
     themed_story = response_instruction.choices[0].text
     print(themed_story)
-
     return themed_story
+
+'''
+    response_instruction = openai.Completion.create(
+        prompt='Make this prompt pass DALL-E security: ' + themed_story,
+        model="text-davinci-003",
+        temperature=0.6,
+        max_tokens=256,
+        best_of=5
+    )
+    themed_story = response_instruction.choices[0].text
+    print(themed_story)
+    '''
 
 
 def generate_image(instruction):
@@ -245,7 +258,7 @@ def generate_article(source, send_to_db=False):
     response_category = generate_category(summary)
     category = response_category.choices[0].text.replace('.', '').replace('\n', '')
 
-    instruction = image_prompt_generator(title, summary)
+    instruction = image_prompt_generator(summary)
     image_url = generate_image(instruction)
 
     article = {

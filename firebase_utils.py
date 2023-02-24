@@ -9,6 +9,8 @@ import urllib.request
 import os
 
 # Use a service account
+import mail_utils
+
 cred = credentials.Certificate('firebaseServiceAccount.json')
 firebase_admin.initialize_app(cred, {
     'storageBucket': 'gray-area-378308.appspot.com'
@@ -24,6 +26,17 @@ def get_subscribers():
     return [doc.id for doc in db.collection('subscribers').list_documents()]
 
 
+def on_snapshot(doc_snapshot, changes, read_time):
+    # doc_snapshot = doc_snapshot.order_by('timestamp', direction=cloud_firestore.Query.DESCENDING).limit(1)
+    #docs = doc_snapshot.stream()
+    print(doc_snapshot)
+    if len(doc_snapshot) > 0:
+        doc = doc_snapshot[0]
+        print(f'Received document {doc.id}')
+        mail_utils.send_email(get_subscribers(), 'Daily newsletter', mail_utils.insert_into_template(get_newsletter()))
+        print(doc.to_dict())
+
+
 def get_newsletter():
     today = dt.datetime.utcnow().date()
     # convert to datetime object with midnight as time
@@ -32,13 +45,13 @@ def get_newsletter():
     # query Firestore for documents with timestamp between today_start and today_end
     articles = db.collection('articles').where('date', '>=', today_start).stream()
 
-    articles_list = []
+    '''articles_list = []
     for article in articles:
         article_dict = article.to_dict()
         print(f"today start {today_start}, article date {article_dict['date']} ")
         articles_list.append(article_dict)
-
-    return articles_list
+'''
+    return articles
 
 
 def generate_image_url(id):
