@@ -85,10 +85,11 @@ def generate_article_title(summary):
 
 
 def image_prompt_generator(summary):
+    #MAIN ACTING OBJECT CENTER of attention
     response_instruction = openai.Completion.create(
-        prompt='In one line write a sentence an abstract description of the event without mentioning details: ' + summary,
+        prompt='In one line sentence write an abstract description of the event capturing the main theme without mentioning details: ' + summary,
         model="text-davinci-003",
-        temperature=0.6,
+        temperature=0.2,
         max_tokens=256,
         best_of=5
     )
@@ -96,9 +97,9 @@ def image_prompt_generator(summary):
     print(theme)
 
     response_instruction = openai.Completion.create(
-        prompt='Generate 5 association words with next phrase: ' + theme,
+        prompt='Generate 5 direct association words with the next phrase: ' + theme,
         model="text-davinci-003",
-        temperature=0.6,
+        temperature=0.1,
         max_tokens=256,
         best_of=5
     )
@@ -110,42 +111,48 @@ def image_prompt_generator(summary):
     response_instruction = openai.Completion.create(
         prompt=associations + ' from the list above select the most relevant word to categorize this event: ' + summary,
         model="text-davinci-003",
-        temperature=0.6,
+        temperature=0.1,
         max_tokens=256,
         best_of=5
     )
     general = response_instruction.choices[0].text
     print(general)
+    #categorized
     response_instruction = openai.Completion.create(
-        prompt=associations + ' using only words from the list above select words related to: ' + general,
+        prompt='From the list:' + associations + ', select words that can be categorized as ' + general,
         model="text-davinci-003",
-        temperature=0.6,
+        temperature=0.1,
         max_tokens=256,
         best_of=5
     )
 
-    instruction = response_instruction.choices[0].text
-    print(instruction)
-    response_instruction = openai.Completion.create(
-        prompt='Generate a one sentence description of an illustration with a theme: ' + instruction,
-        model="text-davinci-003",
-        temperature=0.6,
-        max_tokens=256,
-        best_of=5
-    )
-    instruction = response_instruction.choices[0].text
-    print(instruction)
+    related_associations = response_instruction.choices[0].text
+    print(related_associations)
 
     response_instruction = openai.Completion.create(
-        prompt='Capture objects from this sentence, list them connecting with + sign' + instruction,
+        prompt='Generate a one sentence description of an illustration that pictures an object with themes: ' + related_associations,
         model="text-davinci-003",
         temperature=0.6,
         max_tokens=256,
         best_of=5
     )
-    instruction = response_instruction.choices[0].text
-    print(instruction)
-    return instruction
+    themed_story = response_instruction.choices[0].text
+    print(themed_story)
+    return themed_story
+
+    ''' response_instruction = openai.Completion.create(
+        prompt='Capture objects from this sentence:' + themed_story,
+        model="text-davinci-003",
+        temperature=0.6,
+        max_tokens=256,
+        best_of=5
+    )
+    objects = response_instruction.choices[0].text
+    print(objects)
+
+    objects = response_instruction.choices[0].text
+    return objects
+    '''
 
 
 def generate_image(instruction):
