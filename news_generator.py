@@ -42,9 +42,7 @@ def sentiment_analysis(content_dict):
 
 def separate_sentiments(df):
     # seperate the positive, neutral and negative and sort them
-    print(df)
-    print(df["label"])
-    print(df['label'] == "POS")
+
     pos = df[df['label'] == "POS"]
     neu = df[df['label'] == "NEU"]
     neg = df[df['label'] == "NEG"]

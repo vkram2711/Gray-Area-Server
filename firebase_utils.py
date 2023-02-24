@@ -4,7 +4,7 @@ from firebase_admin import credentials, storage
 from firebase_admin import firestore
 from datetime import datetime, timedelta
 import datetime as dt
-from google.cloud import firestore as cloudFirestore
+from google.cloud import firestore as cloud_firestore
 import urllib.request
 import os
 
@@ -25,15 +25,20 @@ def get_subscribers():
 
 
 def get_newsletter():
-    today = dt.date.today()
+    today = dt.datetime.utcnow().date()
     # convert to datetime object with midnight as time
     today_start = dt.datetime.combine(today, dt.time.min)
 
-    # convert to datetime object with 11:59:59 PM as time
-    today_end = dt.datetime.combine(today, dt.time.max)
     # query Firestore for documents with timestamp between today_start and today_end
-    return db.collection('articles').where('date', '>=', today_start).where('date', '<=', today_end).stream()
+    articles = db.collection('articles').where('date', '>=', today_start).stream()
 
+    articles_list = []
+    for article in articles:
+        article_dict = article.to_dict()
+        print(f"today start {today_start}, article date {article_dict['date']} ")
+        articles_list.append(article_dict)
+
+    return articles_list
 
 
 def generate_image_url(id):
@@ -68,7 +73,7 @@ def save_articles_to_firebase(articles):
             'title': article['title'],
             'category': article['category'],
             'description': article['description'],
-            'date': cloudFirestore.SERVER_TIMESTAMP,
+            'date': cloud_firestore.SERVER_TIMESTAMP,
             'pro_title': article['title_a'],
             'pro': article['narration_a'],
             'against_title': article['title_b'],
