@@ -3,15 +3,11 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask, json, request
 from dotenv import load_dotenv
 import datetime as dt
-import cyber_journalist
 import firebase_utils
 import mail_utils
-import news_generator
-import news_utils
 from firebase_utils import get_newsletter, get_subscribers, db
 from mail_utils import initialize_gmail_api, insert_into_template, send_email
-from cyber_journalist import generate_article
-from timeit import default_timer as timer
+
 
 # Load variables from environment file
 load_dotenv()
@@ -70,6 +66,17 @@ def get_newsletter():
     return json.dumps(firebase_utils.get_newsletter())
 
 
+def on_snapshot(doc_snapshot, changes, read_time):
+    # doc_snapshot = doc_snapshot.order_by('timestamp', direction=cloud_firestore.Query.DESCENDING).limit(1)
+    #docs = doc_snapshot.stream()
+    print(doc_snapshot)
+    if len(doc_snapshot) > 0:
+        doc = doc_snapshot[0]
+        print(f'Received document {doc.id}')
+        mail_utils.send_email(get_subscribers(), 'Daily newsletter', mail_utils.insert_into_template(get_newsletter()))
+        print(doc.to_dict())
+
+
 if __name__ == '__main__':
     current_time = dt.datetime.utcnow()
 
@@ -77,7 +84,7 @@ if __name__ == '__main__':
     query = db.collection('subscribers')
 
     # Listen for realtime updates on the query
-    query_watch = query.on_snapshot(firebase_utils.on_snapshot)
+    query_watch = query.on_snapshot(on_snapshot)
 
     # sched = BackgroundScheduler()
     # sched.start()
