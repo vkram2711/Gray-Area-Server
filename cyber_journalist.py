@@ -97,6 +97,16 @@ def image_prompt_generator(summary):
     print(theme)
 
     response_instruction = openai.Completion.create(
+        prompt='Write what is the center of attention in this sentence: ' + summary,
+        model="text-davinci-003",
+        temperature=0.2,
+        max_tokens=256,
+        best_of=5
+    )
+    theme = response_instruction.choices[0].text
+    print(theme)
+
+    response_instruction = openai.Completion.create(
         prompt='Generate 5 direct association words with the next phrase: ' + theme,
         model="text-davinci-003",
         temperature=0.1,
@@ -138,21 +148,9 @@ def image_prompt_generator(summary):
     )
     themed_story = response_instruction.choices[0].text
     print(themed_story)
+
     return themed_story
 
-    ''' response_instruction = openai.Completion.create(
-        prompt='Capture objects from this sentence:' + themed_story,
-        model="text-davinci-003",
-        temperature=0.6,
-        max_tokens=256,
-        best_of=5
-    )
-    objects = response_instruction.choices[0].text
-    print(objects)
-
-    objects = response_instruction.choices[0].text
-    return objects
-    '''
 
 
 def generate_image(instruction):
