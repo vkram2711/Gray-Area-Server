@@ -1,5 +1,4 @@
 import os
-
 import pytz
 from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask, json, request
