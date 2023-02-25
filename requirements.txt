@@ -12,3 +12,5 @@ pytz~=2022.7.1
 google-auth-oauthlib==1.0.0
 firebase-admin==6.1.0
 newsapi-python==0.2.6
+tensorflow-macos==2.11.0
+tf-nightly-macos==2.12.0

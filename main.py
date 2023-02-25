@@ -11,6 +11,7 @@ import mail_utils
 import news_generator
 from firebase_utils import get_newsletter, db
 from mail_utils import insert_into_template, send_email
+from apscheduler.triggers.cron import CronTrigger
 
 # Load variables from environment file
 load_dotenv()
@@ -60,7 +61,10 @@ if __name__ == '__main__':
     # send_email(['leoliuc0519@gmail.com'], 'Daily Newsletter', insert_into_template(get_newsletter()))
     sched = BackgroundScheduler(timezone=pytz.utc)
     sched.start()
-    sched.add_job(generate_newsletter_and_send, hour=1)
+    trigger = CronTrigger(
+        year="*", month="*", day="*", hour="1", minute="0", second="5", timezone=pytz.utc,
+    )
+    sched.add_job(generate_newsletter_and_send, trigger=trigger)
     port = int(os.environ.get('PORT', 5000))
     api.run(host='0.0.0.0', port=port)
 
