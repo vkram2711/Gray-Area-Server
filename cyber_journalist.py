@@ -1,10 +1,9 @@
 import os
+from timeit import default_timer as timer
 
 import openai
-import urllib.request
 
 from firebase_utils import save_articles_to_firebase
-from timeit import default_timer as timer
 
 # setup openai api key
 openai.api_key = os.environ.get('OPENAI')

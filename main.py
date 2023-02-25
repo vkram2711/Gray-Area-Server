@@ -1,15 +1,16 @@
+import datetime as dt
 import os
+
 import pytz
 from apscheduler.schedulers.background import BackgroundScheduler
-from flask import Flask, json, request
 from dotenv import load_dotenv
-import datetime as dt
+from flask import Flask, json, request
+
 import firebase_utils
 import mail_utils
 import news_generator
-from firebase_utils import get_newsletter, get_subscribers, db
-from mail_utils import initialize_gmail_api, insert_into_template, send_email
-
+from firebase_utils import get_newsletter, db
+from mail_utils import insert_into_template, send_email
 
 # Load variables from environment file
 load_dotenv()
@@ -36,31 +37,6 @@ def subscribe():
 def unsubscribe():
     db.collection('users').document(request.args.get('email')).delete()
     return json.dumps({"status": "ok"})
-
-
-'''
-
-@api.route('/generate_news', methods=['GET'])
-def generate_news():
-    start = timer()
-
-    query = request.args.get('query')
-    source = news_generator.generate_news(query)
-    article = generate_article(source, True)
-
-    end = timer()
-
-    print(f"News generation took:{end - start}")
-    return json.dumps(article)
-
-
-@api.route('/generate_newsletter', methods=['GET'])
-def generate_newsletter():
-    titles = news_utils.get_top_titles()
-    source = news_generator.generate_news(titles[0])
-    article = generate_article(source, True)
-    return json.dumps(article)
-'''
 
 
 # @api.route('/get_newsletter', methods=['GET'])

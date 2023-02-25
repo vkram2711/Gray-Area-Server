@@ -1,12 +1,12 @@
-from email.mime.multipart import MIMEMultipart
-from google_auth_oauthlib.flow import InstalledAppFlow
-from bs4 import BeautifulSoup
 import base64
+from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+
+from bs4 import BeautifulSoup
 from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
-from google.cloud import firestore as cloudFirestore
 
 from firebase_utils import generate_image_url
 
