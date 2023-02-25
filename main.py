@@ -1,10 +1,13 @@
 import os
+
+import pytz
 from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask, json, request
 from dotenv import load_dotenv
 import datetime as dt
 import firebase_utils
 import mail_utils
+import news_generator
 from firebase_utils import get_newsletter, get_subscribers, db
 from mail_utils import initialize_gmail_api, insert_into_template, send_email
 
@@ -61,41 +64,29 @@ def generate_newsletter():
 '''
 
 
-@api.route('/get_newsletter', methods=['GET'])
-def get_newsletter():
-    return json.dumps(firebase_utils.get_newsletter())
+# @api.route('/get_newsletter', methods=['GET'])
+# def get_newsletter():
+#    return json.dumps(firebase_utils.get_newsletter())
 
-
-def on_snapshot(doc_snapshot, changes, read_time):
-    # doc_snapshot = doc_snapshot.order_by('timestamp', direction=cloud_firestore.Query.DESCENDING).limit(1)
-    #docs = doc_snapshot.stream()
-    print(doc_snapshot)
-    if len(doc_snapshot) > 0:
-        doc = doc_snapshot[0]
-        print(f'Received document {doc.id}')
-        mail_utils.send_email(get_subscribers(), 'Daily newsletter', mail_utils.insert_into_template(get_newsletter()))
-        print(doc.to_dict())
+def generate_newsletter_and_send():
+    news_generator.top_newsletter()
+    mail_utils.send_email(firebase_utils.get_subscribers(), 'Daily Newsletter', insert_into_template(firebase_utils.get_newsletter()))
 
 
 if __name__ == '__main__':
     current_time = dt.datetime.utcnow()
 
     # Create a query to listen for changes on the "my_collection" collection
-    query = db.collection('subscribers')
+    # query = db.collection('subscribers')
 
     # Listen for realtime updates on the query
-    query_watch = query.on_snapshot(on_snapshot)
+    # query_watch = query.on_snapshot(on_snapshot)
 
-    # sched = BackgroundScheduler()
-    # sched.start()
-    # sched.add_job(send_email, 'interval', seconds=15, args=[get_subscribers(), 'Daily newsletter', insert_into_template(get_newsletter())])
-    # instruction = cyber_journalist.image_prompt_generator('As winter weather warnings, blizzards, and ice take effect across the United States, 65 million people are now under winter weather alerts from California to New York. This storm has the potential to cause hazardous travel conditions and bring snow and freezing rain. Politicians should take this storm seriously and ensure that their constituents are prepared for the potential impacts. It is essential that all necessary precautions are taken to ensure the safety of the public')
-    # instruction = cyber_journalist.image_prompt_generator('Andrew Tate, a British-American social media influencer, is being investigated by Romanian prosecutors for suspected involvement in organized crime. Evidence against him includes a video of him promoting a strategy for avoiding taxes on bitcoin, and authorities have seized some of his expensive car collection. His brother and two Romanians are also in custody, and forensic searches of mobile phones and laptops are being conducted. A recent poll revealed that more 16 and 17-year-old boys had watched Tate’s videos than knew who the Chancellor of the Exchequer, Rishi Sunak, was.')
-    # instruction = cyber_journalist.image_prompt_generator('President Biden has had a successful first term in office, and many are wondering if he should run for re-election in 2024. Questions have been raised about whether Biden is the best candidate to beat the Republicans, and if his age will be a factor in the election. It is uncertain if Biden, who would be in his mid-80s if re-elected, would be a capable leader of the United States. While Biden has done a good job so far, it is unclear who else could be a viable alternative if he decides not to run again')
-    # print(cyber_journalist.generate_image(instruction))
-    #news_generator.top_newsletter()
-    #mail_utils.send_email(firebase_utils.get_subscribers(), 'Daily Newsletter', insert_into_template(firebase_utils.get_newsletter()))
+    # send_email(['leoliuc0519@gmail.com'], 'Daily Newsletter', insert_into_template(get_newsletter()))
+    sched = BackgroundScheduler(timezone=pytz.utc)
+    sched.start()
+    sched.add_job(generate_newsletter_and_send, hour=1)
     port = int(os.environ.get('PORT', 5000))
     api.run(host='0.0.0.0', port=port)
 
-    # sched.shutdown()
+    sched.shutdown()

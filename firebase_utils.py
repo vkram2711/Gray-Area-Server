@@ -24,8 +24,6 @@ def get_subscribers():
     return [doc.id for doc in db.collection('subscribers').list_documents()]
 
 
-
-
 def get_newsletter():
     today = dt.datetime.utcnow().date()
     # convert to datetime object with midnight as time
@@ -33,13 +31,12 @@ def get_newsletter():
 
     # query Firestore for documents with timestamp between today_start and today_end
     articles = db.collection('articles').where('date', '>=', today_start).stream()
-
     '''articles_list = []
     for article in articles:
         article_dict = article.to_dict()
         print(f"today start {today_start}, article date {article_dict['date']} ")
-        articles_list.append(article_dict)
-'''
+        articles_list.append(article_dict)'''
+    #print(articles_list)
     return articles
 
 
