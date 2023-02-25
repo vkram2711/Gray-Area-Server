@@ -131,3 +131,4 @@ dmypy.json
 #google
 client_secret.json
 credentials.json
+firebaseServiceAccount.json
