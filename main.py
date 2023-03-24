@@ -17,7 +17,8 @@ from google.cloud.firestore_v1.watch import ChangeType
 # Load variables from environment file
 load_dotenv()
 
-# mail_utils.initialize_gmail_api()
+#mail_utils.initialize_gmail_api()
+mail_utils.refresh_gmail()
 
 api = Flask(__name__)
 

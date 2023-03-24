@@ -7,6 +7,7 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
+from google.auth.transport.requests import Request
 
 from firebase_utils import generate_image_url
 
@@ -17,18 +18,24 @@ def initialize_gmail_api():
     # Define the scopes that your application needs to access the Gmail API
 
     # Load the client ID and client secret from the JSON file
-    flow = InstalledAppFlow.from_client_secrets_file(
-        'client_secret.json', scopes=SCOPES)
+    flow = InstalledAppFlow.from_client_secrets_file('client_secret.json', scopes=SCOPES)
 
     # Start the OAuth 2.0 authorization flow
     credentials = flow.run_local_server(port=0)
 
-    # Print the refresh token
-    print('Refresh token:', credentials.refresh_token)
-
     # Save the credentials to a JSON file for future use
     with open('credentials.json', 'w') as f:
         f.write(credentials.to_json())
+
+
+def refresh_gmail():
+    # Load credentials from file or create a new instance of Credentials
+    creds = Credentials.from_authorized_user_file('credentials.json', SCOPES)
+
+    # Check if the access token is expired
+    if creds and creds.expired and creds.refresh_token:
+        # Refresh the access token using the refresh token
+        creds.refresh(Request())
 
 
 def insert_into_template(articles):
