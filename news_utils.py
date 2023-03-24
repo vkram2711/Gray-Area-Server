@@ -7,7 +7,7 @@ load_dotenv()
 # News API Key
 secret_newsapi = os.environ.get('NEWSAPI')
 api = NewsApiClient(api_key=secret_newsapi)
-
+print(secret_newsapi)
 
 def get_articles_description(keywords):
     # Get description:content dictionary
@@ -21,8 +21,8 @@ def get_articles_description(keywords):
 
 
 def get_top_titles():
-
-    top = api.get_top_headlines(country='us', page_size=3)
+    top = api.get_top_headlines(language='en', page_size=3)
+    print(top)
     titles = []
     for article in top['articles']:
         titles.append(article['title'])

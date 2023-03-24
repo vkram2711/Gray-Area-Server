@@ -128,7 +128,7 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-#google
-client_secret.json
-credentials.json
-firebaseServiceAccount.json
+# google
+# client_secret.json
+# credentials.json
+# firebaseServiceAccount.json

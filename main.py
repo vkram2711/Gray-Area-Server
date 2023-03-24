@@ -9,6 +9,7 @@ from flask import Flask, json, request
 import firebase_utils
 import mail_utils
 import news_generator
+import news_utils
 from firebase_utils import get_newsletter, db
 from mail_utils import insert_into_template, send_email
 from apscheduler.triggers.cron import CronTrigger
@@ -16,7 +17,7 @@ from apscheduler.triggers.cron import CronTrigger
 # Load variables from environment file
 load_dotenv()
 
-# initialize_gmail_api()
+#mail_utils.initialize_gmail_api()
 
 api = Flask(__name__)
 
@@ -51,6 +52,12 @@ def generate_newsletter_and_send():
 
 if __name__ == '__main__':
     current_time = dt.datetime.utcnow()
+   # print(news_utils.get_top_titles())
+    news_generator.top_newsletter()
+
+    #mail_utils.send_email(firebase_utils.get_subscribers(), 'Daily Newsletter', insert_into_template(firebase_utils.get_newsletter()))
+
+    #mail_utils.send_email(['vkramarenko2711@gmail.com'], 'Daily Newsletter', insert_into_template(firebase_utils.get_newsletter()))
 
     # Create a query to listen for changes on the "my_collection" collection
     # query = db.collection('subscribers')
@@ -59,13 +66,13 @@ if __name__ == '__main__':
     # query_watch = query.on_snapshot(on_snapshot)
 
     # send_email(['leoliuc0519@gmail.com'], 'Daily Newsletter', insert_into_template(get_newsletter()))
-    sched = BackgroundScheduler(timezone=pytz.utc)
-    sched.start()
-    trigger = CronTrigger(
-        year="*", month="*", day="*", hour="1", minute="0", second="5", timezone=pytz.utc,
-    )
-    sched.add_job(generate_newsletter_and_send, trigger=trigger)
-    port = int(os.environ.get('PORT', 5000))
-    api.run(host='0.0.0.0', port=port)
+    #sched = BackgroundScheduler(timezone=pytz.utc)
+    #sched.start()
+    #trigger = CronTrigger(
+    #    year="*", month="*", day="*", hour="1", minute="0", second="5", timezone=pytz.utc,
+    #)
+    #sched.add_job(generate_newsletter_and_send, trigger=trigger)
+    #port = int(os.environ.get('PORT', 5000))
+    #api.run(host='0.0.0.0', port=port)
 
-    sched.shutdown()
+    #sched.shutdown()
