@@ -12,5 +12,5 @@ All required packages are stored in the ```requirements.txt``` file and can be i
 
 Step 3:
 
-After launching the server, to receive newsletter, it's needed to signup using the google form: https://docs.google.com/forms/d/e/1FAIpQLSerIkAB_RKVyh19-fDQLF61Ux1a5m9aeUrPQ41TdBsV5osH2g
+After launching the server, to receive newsletter, it's needed to signup using the google form: https://forms.gle/2AcdLjYMXvYYC2qb8
 
