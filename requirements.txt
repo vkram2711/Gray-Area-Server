@@ -1,0 +1,16 @@
+APScheduler==3.10.0
+beautifulsoup4==4.11.2
+Flask==2.2.3
+google==3.0.0
+openai==0.26.5
+
+python-dotenv==1.0.0
+pandas~=1.5.3
+transformers~=4.26.1
+
+pytz~=2022.7.1
+google-auth-oauthlib==1.0.0
+firebase-admin==6.1.0
+newsapi-python==0.2.6
+tensorflow-macos==2.11.0
+tf-nightly-macos==2.12.0
