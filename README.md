@@ -2,6 +2,8 @@
 
 A backend server that automatically generates and delivers balanced, AI-authored news newsletters. For each top headline, the system produces a pro/con/neutral article with an AI-generated image and emails it to subscribers daily.
 
+Users can subscribe using google form connected through zappier https://docs.google.com/forms/d/e/1FAIpQLSerIkAB_RKVyh19-fDQLF61Ux1a5m9aeUrPQ41TdBsV5osH2g/viewform
+
 ## How It Works
 
 1. **News Fetching** — NewsAPI retrieves the day's top headlines
