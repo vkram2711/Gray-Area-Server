@@ -2,9 +2,14 @@
 
 A backend server that automatically generates and delivers balanced, AI-authored news newsletters. For each top headline, the system produces a pro/con/neutral article with an AI-generated image and emails it to subscribers daily.
 
-Users can subscribe using google form connected through zappier https://docs.google.com/forms/d/e/1FAIpQLSerIkAB_RKVyh19-fDQLF61Ux1a5m9aeUrPQ41TdBsV5osH2g/viewform
+Users can subscribe using [Google form]([https://docs.google.com/forms/d/e/1FAIpQLSerIkAB_RKVyh19-fDQLF61Ux1a5m9aeUrPQ41TdBsV5osH2g/viewform)) connected through zappier 
 
-<iframe width="560" height="315" src="https://www.youtube.com/watch?v=tSfKLyv99os" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+## Preview
+<img width="2938" height="1838" alt="image" src="https://github.com/user-attachments/assets/abb84f56-4fcc-41e8-a277-5dd1fc142341" />
+
+
+https://github.com/user-attachments/assets/17720d81-5022-4289-a39e-36aceaab2427
+
 
 ## How It Works
 
