@@ -4,6 +4,8 @@ A backend server that automatically generates and delivers balanced, AI-authored
 
 Users can subscribe using google form connected through zappier https://docs.google.com/forms/d/e/1FAIpQLSerIkAB_RKVyh19-fDQLF61Ux1a5m9aeUrPQ41TdBsV5osH2g/viewform
 
+<iframe width="560" height="315" src="https://www.youtube.com/watch?v=tSfKLyv99os" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
 ## How It Works
 
 1. **News Fetching** — NewsAPI retrieves the day's top headlines
